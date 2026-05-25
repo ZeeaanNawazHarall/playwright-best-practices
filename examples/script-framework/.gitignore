@@ -1,0 +1,19 @@
+
+# Dependencies
+node_modules/
+
+# Playwright output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Allure
+allure-results/
+allure-report/
+
+# Environment
+.env
+
+# Playwright session / storage state files
+storageState*.json
