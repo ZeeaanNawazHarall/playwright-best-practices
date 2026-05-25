@@ -150,17 +150,22 @@ Axe-core finds rule violations automatically. It cannot verify reading order, sc
 ```
 playwright-best-practices/
 ├── README.md
-└── docs/
-    ├── 01-framework-architecture/
-    ├── 02-fixtures/
-    ├── 03-locators/
-    ├── 04-authentication/
-    ├── 05-configuration/
-    ├── 06-reporting/
-    ├── 07-ci-cd/
-    ├── 08-flaky-tests/
-    ├── 09-accessibility/
-    └── 10-anti-patterns/
+├── CLAUDE.md
+├── LICENSE
+├── docs/
+│   ├── 01-framework-architecture/
+│   ├── 02-fixtures/
+│   ├── 03-locators/
+│   ├── 04-authentication/
+│   ├── 05-configuration/
+│   ├── 06-reporting/
+│   ├── 07-ci-cd/
+│   ├── 08-flaky-tests/
+│   ├── 09-accessibility/
+│   └── 10-anti-patterns/
+└── examples/
+    ├── pom-framework/       ← Page Object Model with split locator/action pattern
+    └── script-framework/    ← Same scenarios, no page objects
 ```
 
 ---
