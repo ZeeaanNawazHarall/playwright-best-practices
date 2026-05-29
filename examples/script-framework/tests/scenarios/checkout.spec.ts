@@ -18,6 +18,14 @@ test.describe.serial("Scenario 2: Checkout Flow", () => {
   const productName = "Sauce Labs Bike Light";
 
   test("Should add item to cart", async ({ loggedInPage }) => {
+    // Clear any cart items left by previous test files
+    await loggedInPage.locator('[data-test="shopping-cart-link"]').click();
+    for (const btn of await loggedInPage
+      .locator('button[data-test^="remove-"]')
+      .all()) {
+      await btn.click();
+    }
+    await loggedInPage.goto("/inventory.html");
     await loggedInPage
       .locator('[data-test="add-to-cart-sauce-labs-bike-light"]')
       .click();

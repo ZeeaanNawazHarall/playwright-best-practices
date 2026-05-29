@@ -5,6 +5,8 @@ test.describe.serial("Duplicate Checkout Flow (Script-based)", () => {
   const productName = "Sauce Labs Bike Light";
 
   test("Should add item to cart and verify badge", async ({ loggedInPage }) => {
+    // Checkout from the previous test file empties the cart; just navigate to inventory
+    await loggedInPage.goto("/inventory.html");
     await loggedInPage
       .locator('[data-test="add-to-cart-sauce-labs-bike-light"]')
       .click();
