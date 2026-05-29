@@ -27,6 +27,7 @@ const getVisibleProductPrices = async (page: any) => {
 
 test.describe("Scenario 3: Product Sorting", () => {
   test("Should sort products A to Z", async ({ loggedInPage }) => {
+    await loggedInPage.goto("/inventory.html");
     await loggedInPage
       .locator('[data-test="product-sort-container"]')
       .selectOption("az");
@@ -35,6 +36,7 @@ test.describe("Scenario 3: Product Sorting", () => {
   });
 
   test("Should sort products Z to A", async ({ loggedInPage }) => {
+    await loggedInPage.goto("/inventory.html");
     await loggedInPage
       .locator('[data-test="product-sort-container"]')
       .selectOption("za");
@@ -45,6 +47,7 @@ test.describe("Scenario 3: Product Sorting", () => {
   test("Should sort products by price low to high", async ({
     loggedInPage,
   }) => {
+    await loggedInPage.goto("/inventory.html");
     await loggedInPage
       .locator('[data-test="product-sort-container"]')
       .selectOption("lohi");
@@ -55,6 +58,7 @@ test.describe("Scenario 3: Product Sorting", () => {
   test("Should sort products by price high to low", async ({
     loggedInPage,
   }) => {
+    await loggedInPage.goto("/inventory.html");
     await loggedInPage
       .locator('[data-test="product-sort-container"]')
       .selectOption("hilo");

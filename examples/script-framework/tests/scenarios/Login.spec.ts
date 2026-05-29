@@ -43,12 +43,14 @@ const performSortAddAndVerify = async (
 };
 
 test("Scenario 1: Login with Valid Credentials", async ({ loggedInPage }) => {
+  await loggedInPage.goto("/inventory.html");
   await expect(loggedInPage.locator('[data-test="title"]')).toHaveText(
     "Products",
   );
 });
 
 test("Quick smoke test (non-POM)", async ({ loggedInPage }) => {
+  await loggedInPage.goto("/inventory.html");
   await loggedInPage.locator('[data-test="shopping-cart-link"]').click();
   await expect(loggedInPage.locator('[data-test="title"]')).toContainText(
     "Your Cart",
@@ -57,6 +59,7 @@ test("Quick smoke test (non-POM)", async ({ loggedInPage }) => {
 
 test("Complex method: sort, add multiple, verify", async ({ loggedInPage }) => {
   const page = loggedInPage;
+  await page.goto("/inventory.html");
 
   await performSortAddAndVerify(
     page,
