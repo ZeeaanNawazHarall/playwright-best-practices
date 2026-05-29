@@ -1,6 +1,7 @@
 # Changelog
 
 All notable changes to this project are documented here.
+This project is a reference for production-grade Playwright patterns — with runnable example frameworks, documentation, and anti-patterns.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -14,6 +15,7 @@ Initial public release of the playwright-best-practices reference repo.
 ### Added
 
 #### Documentation (10 sections)
+
 - `docs/01-framework-architecture` — POM vs Script decision guide, split locator/action pattern, ADR-style justification
 - `docs/02-fixtures` — Fixture lifecycle, test vs worker scope, auth fixtures, `workerCache` pattern vs official `{ scope: 'worker' }` tuple
 - `docs/03-locators` — Priority order (`getByRole` → XPath), `testIdAttribute`, chaining and filtering
@@ -26,15 +28,18 @@ Initial public release of the playwright-best-practices reference repo.
 - `docs/10-anti-patterns` — 13 documented anti-patterns with before/after examples and official source links
 
 #### Example Frameworks
+
 - `examples/pom-framework` — Split locator/action POM with `{ scope: 'worker' }` login fixture, `storageState` TTL, Allure reporting
 - `examples/simple-pom-framework` — Single-class POM; the practical default for most projects
 - `examples/script-framework` — Same test scenarios using plain helper functions instead of page object classes
 - `examples/anti-pattern-lab` — All 13 anti-patterns as labeled, isolated TypeScript files (reference only — do not copy)
 
 #### CI
+
 - `.github/workflows/playwright.yml` — Matrix strategy running all three frameworks in parallel; `concurrency.cancel-in-progress` for stale-run cancellation; `timeout-minutes: 15` per job; `jq`-based post-test JSON validation; HTML report artifact upload with `if: !cancelled()`
 
 #### Community Health Files
+
 - `CONTRIBUTING.md` — Philosophy, local setup, code standards, PR checklist
 - `SECURITY.md` — Scope, vulnerability reporting via GitHub private advisories, out-of-scope list
 - `CODE_OF_CONDUCT.md` — References Contributor Covenant v2.1
@@ -43,6 +48,7 @@ Initial public release of the playwright-best-practices reference repo.
 - `.github/PULL_REQUEST_TEMPLATE.md` — Checklist with per-framework test verification and source link requirement
 
 #### Root Documentation
+
 - `README.md` — Learning paths by experience level, framework comparison table, scaling guide, roadmap
 - `CLAUDE.md` — AI-agent instruction file: standards, anti-pattern guard, section reference map
 - `CHANGELOG.md` — This file
