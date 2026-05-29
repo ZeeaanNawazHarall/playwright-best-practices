@@ -47,7 +47,7 @@ jobs:
         # .env.example contains the correct public SauceDemo credentials.
         # For a private app, remove this step and inject secrets instead:
         #   APP_URL:    ${{ secrets.APP_URL }}
-        #   USER:       ${{ secrets.TEST_USER }}
+        #   TEST_USER:  ${{ secrets.TEST_USER }}
         #   PASSWORD:   ${{ secrets.TEST_PASSWORD }}
         run: cp .env.example .env
 

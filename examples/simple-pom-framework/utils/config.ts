@@ -10,6 +10,6 @@ function requireEnv(name: string): string {
 
 export const appConfig = {
   url: requireEnv("APP_URL"),
-  getUsername: () => requireEnv("USER"),
+  getUsername: () => requireEnv("TEST_USER"),
   getPassword: () => requireEnv("PASSWORD"),
 };

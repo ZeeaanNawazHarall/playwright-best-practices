@@ -130,7 +130,7 @@ cp .env.example .env
 
 ```
 APP_URL=https://www.saucedemo.com
-USER=standard_user
+TEST_USER=standard_user
 PASSWORD=secret_sauce
 ```
 
