@@ -192,18 +192,9 @@ npx allure serve allure-results
 
 ---
 
-## Known Anti-Patterns in This Framework
+## Anti-Patterns
 
-The fixture (`fixtures/login.ts`) contains the same documented anti-patterns as the POM version — they are left intentionally for comparison. See [docs/10-anti-patterns](../../docs/10-anti-patterns/README.md).
-
-| File | Anti-pattern | Fix |
-|------|-------------|-----|
-| `fixtures/login.ts` | XPath `'//*[@id="user-name"]'` in `performLogin` | `page.getByLabel('Username')` |
-| `fixtures/login.ts` | No teardown after `await use()` | `await context.close()` after `use()` |
-| `fixtures/login.ts` | `testInfo.setTimeout(60000)` in fixture | Set `timeout` in `playwright.config.ts` |
-| `fixtures/login.ts` | `console.log` statements | `test.step()` or remove |
-| `fixtures/login.ts` | Redundant `waitForLoadState` calls | Remove — use one `expect` assertion |
-| `tests/scenarios/checkout.spec.ts` | `.shopping_cart_link` CSS class | `page.getByRole('link', { name: 'Shopping cart' })` |
+This framework follows Playwright best practices throughout. The before/after examples for all 12 documented anti-patterns are in [`examples/anti-pattern-lab/`](../anti-pattern-lab/) and [`docs/10-anti-patterns/`](../../docs/10-anti-patterns/README.md).
 
 ---
 

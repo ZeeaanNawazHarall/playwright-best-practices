@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
 import { ProductsLocators } from "./product.locators";
 
 export class ProductsPage {
@@ -38,30 +38,27 @@ export class ProductsPage {
     }
     await this.locators.openMenuButton.click();
     await this.locators.resetAppStateLink.click();
-    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async sortProductsBy(sortOption: "az" | "za" | "lohi" | "hilo") {
     await this.locators.sortDropdown.selectOption(sortOption);
-    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async getVisibleProductNames(): Promise<string[]> {
-    await this.page.waitForSelector('[data-test="inventory-item"]');
+    await expect(this.locators.inventoryItems.first()).toBeVisible();
     const names = await this.locators.inventoryItemNames.allInnerTexts();
     return names.map((name) => this.normalizeText(name));
   }
 
   async getVisibleProductPrices(): Promise<number[]> {
-    await this.page.waitForSelector('[data-test="inventory-item"]');
+    await expect(this.locators.inventoryItems.first()).toBeVisible();
     const prices = await this.locators.inventoryItemPrices.allInnerTexts();
     return prices.map((price) => this.parsePrice(this.normalizeText(price)));
   }
 
   async addItemToCart(productName: string) {
-    await this.page.waitForLoadState("domcontentloaded");
     const productItem = this.getProductByName(productName);
-    await productItem.waitFor({ state: "visible" });
+    await expect(productItem).toBeVisible();
 
     const addButton = productItem
       .locator('button[data-test^="add-to-cart-"]')
@@ -72,7 +69,6 @@ export class ProductsPage {
     }
 
     await addButton.click();
-    await this.page.waitForTimeout(200);
   }
 
   async addItemsToCart(productNames: string[]) {
@@ -83,10 +79,7 @@ export class ProductsPage {
 
   async goToCart() {
     await this.locators.cartIcon.click();
-    await this.page.waitForLoadState("domcontentloaded");
   }
-
-  // Add inside ProductsPage class (after existing methods)
 
   async sortAddAndVerify(
     sortOption: "az" | "za" | "lohi" | "hilo",
@@ -96,17 +89,9 @@ export class ProductsPage {
     await this.sortProductsBy(sortOption);
 
     for (const item of itemsToAdd) {
-      if (item === "Sauce Labs Backpack") {
-        await this.page.waitForTimeout(100); // intentional hard wait — see flakiness-edge-cases
-      }
       await this.addItemToCart(item);
     }
 
-    const badgeCount = await this.getCartBadgeCount();
-    if (badgeCount !== expectedBadgeCount) {
-      throw new Error(
-        `Badge count mismatch: expected ${expectedBadgeCount}, got ${badgeCount}`,
-      );
-    }
+    await expect(this.locators.cartBadge).toHaveText(`${expectedBadgeCount}`);
   }
 }

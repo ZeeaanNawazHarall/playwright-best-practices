@@ -1,0 +1,76 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel any in-progress run for the same branch/PR when a new commit is pushed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.framework }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        framework:
+          - pom-framework
+          - script-framework
+          - simple-pom-framework
+    defaults:
+      run:
+        working-directory: examples/${{ matrix.framework }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          # Path is relative to the repository root (not working-directory).
+          cache-dependency-path: examples/${{ matrix.framework }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Configure credentials
+        # .env.example contains the correct public SauceDemo credentials.
+        # For a private app, remove this step and inject secrets instead:
+        #   APP_URL:    ${{ secrets.APP_URL }}
+        #   USER:       ${{ secrets.TEST_USER }}
+        #   PASSWORD:   ${{ secrets.TEST_PASSWORD }}
+        run: cp .env.example .env
+
+      - name: Run Playwright tests
+        run: npm test
+
+      - name: Verify test results
+        if: ${{ !cancelled() }}
+        run: |
+          PASSED=$(jq '[.suites[].specs[].tests[] | select(.results[].status == "passed")] | length' playwright-report/results.json)
+          echo "Tests passed: $PASSED"
+          if [ "$PASSED" -eq 0 ]; then
+            echo "❌ No tests passed — something is misconfigured."
+            exit 1
+          fi
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          # Artifact names must be unique per matrix leg.
+          # Path matches the default Playwright HTML reporter output folder.
+          # If you change outputFolder in playwright.config.ts, update this path too.
+          name: playwright-report-${{ matrix.framework }}
+          path: examples/${{ matrix.framework }}/playwright-report/
+          retention-days: 14

@@ -43,7 +43,6 @@ test.describe.serial("Scenario 4: Cart Management", () => {
     const { product } = getPages(loggedInPage);
 
     await product.addItemsToCart(selectedProducts);
-    await loggedInPage.waitForTimeout(300);
 
     expect(await product.getCartBadgeCount()).toBe(selectedProducts.length);
   });
@@ -85,7 +84,6 @@ test.describe.serial("Scenario 4: Cart Management", () => {
 
     await product.goToCart();
     await cart.removeItemFromCart("Sauce Labs Bike Light");
-    await loggedInPage.waitForTimeout(300);
 
     expect(await cart.getCartItemCount()).toBe(selectedProducts.length - 1);
     expect(await cart.getCartBadgeCount()).toBe(selectedProducts.length - 1);

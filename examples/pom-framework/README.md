@@ -185,23 +185,9 @@ npx allure serve allure-results
 
 ---
 
-## Known Anti-Patterns in This Framework
+## Anti-Patterns
 
-This framework was built iteratively and contains patterns documented in [docs/10-anti-patterns](../../docs/10-anti-patterns/README.md) as things to fix. They are left intentionally so the repo shows both what to do and what to avoid.
-
-| File | Anti-pattern | Fix |
-|------|-------------|-----|
-| `pages/login/login.locators.ts` | XPath `'//*[@id="user-name"]'` | `page.getByLabel('Username')` |
-| `pages/product/product.locators.ts` | CSS class `.shopping_cart_link` | `page.getByRole('link', { name: 'Shopping cart' })` |
-| `pages/product/product.actions.ts` | `waitForTimeout(200)` in `addItemToCart` | Remove — rely on auto-waiting |
-| `pages/product/product.actions.ts` | `waitForSelector(...)` | `await expect(locator).toBeVisible()` |
-| `pages/cart/cart.actions.ts` | `waitForTimeout(300)` in `removeItemFromCart` / `clearCart` | `await expect(locator).toBeHidden()` |
-| `tests/scenarios/checkout.spec.ts` | `page: any` in `getPages` helper | `page: Page` |
-| `fixtures/login.ts` | No teardown after `await use()` | `await context.close()` after `use()` |
-| `fixtures/login.ts` | `testInfo.setTimeout(60000)` in fixture | Set `timeout` in `playwright.config.ts` |
-| `fixtures/login.ts` | `console.log` statements | `test.step()` or remove |
-| `fixtures/login.ts` | Redundant `waitForLoadState` calls | Remove — use one `expect` assertion |
-| `fixtures/login.ts` | `.isVisible()` to validate session | `await expect(locator).toBeVisible()` |
+This framework follows Playwright best practices throughout. The before/after examples for all 12 documented anti-patterns are in [`examples/anti-pattern-lab/`](../anti-pattern-lab/) and [`docs/10-anti-patterns/`](../../docs/10-anti-patterns/README.md).
 
 ---
 

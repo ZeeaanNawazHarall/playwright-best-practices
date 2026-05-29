@@ -1,5 +1,6 @@
 # Playwright Best Practices
 
+[![CI](https://github.com/ZeeaanNawazHarall/playwright-best-practices/actions/workflows/playwright.yml/badge.svg)](https://github.com/ZeeaanNawazHarall/playwright-best-practices/actions/workflows/playwright.yml)
 [![Playwright](https://img.shields.io/badge/Playwright-1.52+-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
@@ -32,7 +33,7 @@ Built from real SDET engineering experience — framework architecture, authenti
 | 07 | [CI/CD](docs/07-ci-cd/README.md) | GitHub Actions, Azure Pipelines, sharding, secrets, artifact upload |
 | 08 | [Flaky Tests](docs/08-flaky-tests/README.md) | Root causes, hard waits, race conditions, `expect.poll`, trace debugging |
 | 09 | [Accessibility](docs/09-accessibility/README.md) | axe-core setup, WCAG tags, keyboard navigation, focus management |
-| 10 | [Anti-Patterns](docs/10-anti-patterns/README.md) | 12 concrete before/after examples with official sources |
+| 10 | [Anti-Patterns](docs/10-anti-patterns/README.md) | 13 concrete before/after examples with official sources |
 
 ---
 
@@ -62,18 +63,48 @@ Built from real SDET engineering experience — framework architecture, authenti
 
 ## Example Frameworks
 
-Working implementations you can clone and run. Both target [SauceDemo](https://www.saucedemo.com) and use the same test scenarios — comparing them is the clearest way to see the POM vs Script trade-off.
+Working implementations you can clone and run. All three target [SauceDemo](https://www.saucedemo.com) and cover the same test scenarios — comparing them shows the full spectrum of Playwright architecture options.
 
 | Framework | Approach | What it demonstrates |
 |-----------|----------|----------------------|
-| [pom-framework](examples/pom-framework/) | Page Object Model with split locator/action classes | POM architecture, worker-cached login fixture, Allure reporting |
-| [script-framework](examples/script-framework/) | Script-based, no page objects | Same scenarios with inline interactions and helper functions |
+| [script-framework](examples/script-framework/) | Script-based, no page objects | Inline interactions and plain helper functions |
+| [simple-pom-framework](examples/simple-pom-framework/) | POM — locators and actions in one class | **Start here.** The right choice for most projects |
+| [pom-framework](examples/pom-framework/) | Split locator/action POM | Advanced pattern for large teams; `storageState` TTL, Allure reporting |
+| [anti-pattern-lab](examples/anti-pattern-lab/) | Intentional bad code — do not copy | All 13 documented anti-patterns in labeled, isolated files |
 
-Both include:
-- Login fixture with worker-scoped session caching and `storageState` persistence
-- Allure + HTML reporting
+All three runnable frameworks include:
+- `{ scope: 'worker' }` login fixture with `storageState` session persistence
+- HTML reporting
 - Multi-browser config (Chromium enabled, Firefox/WebKit commented and ready)
 - `.env`-based credential management
+
+---
+
+## Scaling Your Test Architecture
+
+Pick the simplest approach that solves your current problem. Move up only when you feel the pain that pattern solves.
+
+| Your situation | Recommended approach | Example |
+|:---|:---|:---|
+| Prototyping, few tests, solo developer | Script-based — no page objects | [script-framework](examples/script-framework/) |
+| Growing project, 1–5 engineers, most teams | Simple POM — locators + actions in one class | [simple-pom-framework](examples/simple-pom-framework/) |
+| Large monorepo, multiple teams sharing locators | Split Locator/Action POM — separate files | [pom-framework](examples/pom-framework/) |
+
+**The split locator/action pattern is not the default.** It pays off specifically when UI changes (locators) and business logic changes (actions) come from different teams at different cadences. For most projects, a single-class POM is simpler and sufficient.
+
+→ Full justification with decision criteria: [Framework Architecture docs](docs/01-framework-architecture/README.md)
+
+### Framework Comparison
+
+| | [script-framework](examples/script-framework/) | [simple-pom-framework](examples/simple-pom-framework/) | [pom-framework](examples/pom-framework/) |
+|---|---|---|---|
+| **Complexity** | Low | Medium | High |
+| **Files per page** | 0 (no classes) | 1 | 2 (`locators.ts` + `actions.ts`) |
+| **Locator reuse** | Manual — copy-paste or shared constants | Encapsulated in page class | Fully decoupled — locators sharable without importing action logic |
+| **When a selector changes** | Find all usages manually | Update one property in one class | Update one locator file; action classes unaffected |
+| **When a flow changes** | Edit the helper function | Edit one method in one class | Edit the action class; locator file unaffected |
+| **Allure reporting** | Yes | No (HTML + JSON only) | Yes |
+| **Best for** | Spike testing, rapid prototyping | The default for most teams | Teams where UI and business logic change independently |
 
 ---
 
@@ -112,6 +143,22 @@ Open the HTML report:
 ```bash
 npm run report
 ```
+
+---
+
+## FAQ
+
+**Why do you have a split locator/action pattern? Isn't that over-engineering?**
+For most projects, yes — a single-class POM is sufficient. The split pays off specifically at large scale: multiple teams editing shared locator definitions, or when UI redesigns and business logic changes arrive separately and need isolated diffs. The [scaling guide](#scaling-your-test-architecture) maps each pattern to the situation that justifies it.
+
+**Which framework should I start from?**
+Start with [simple-pom-framework](examples/simple-pom-framework/). Only adopt the split pattern if you feel the maintenance pain it solves — locator changes rippling across many files touched by different engineers.
+
+**What's in anti-pattern-lab?**
+Intentional bad code showing all 13 documented anti-patterns in labeled, isolated TypeScript files. It exists so the patterns-to-avoid are physically separated from the recommended implementations. Do not copy from it.
+
+**Can I use these frameworks with a different app?**
+Yes. All three use environment variables (`APP_URL`, `USER`, `PASSWORD`) via `.env`. Point `APP_URL` at your app and update the locators in the page objects.
 
 ---
 
@@ -164,8 +211,10 @@ playwright-best-practices/
 │   ├── 09-accessibility/
 │   └── 10-anti-patterns/
 └── examples/
-    ├── pom-framework/       ← Page Object Model with split locator/action pattern
-    └── script-framework/    ← Same scenarios, no page objects
+    ├── script-framework/        ← Script-based, no page objects
+    ├── simple-pom-framework/    ← Standard POM — locators + actions in one class (start here)
+    ├── pom-framework/           ← Split locator/action POM for large teams
+    └── anti-pattern-lab/        ← Intentional bad code for each documented anti-pattern
 ```
 
 ---
@@ -178,3 +227,24 @@ playwright-best-practices/
 - **CI**: GitHub Actions / Azure DevOps
 - **Auth**: `storageState` with worker-scoped fixture caching
 - **Accessibility**: `@axe-core/playwright`
+
+---
+
+## Project Status
+
+Current version: **v1.0.0** — see [CHANGELOG.md](CHANGELOG.md) for release history.
+
+### Roadmap
+
+These are planned additions. Open an issue if you want to contribute any of them.
+
+| Status | Item |
+|--------|------|
+| Planned | Docker-based local runner (`docker compose up`) so examples run without a local Node install |
+| Planned | Azure Pipelines example workflow alongside the existing GitHub Actions one |
+| Planned | Sharding example for parallelising a large suite across multiple CI agents |
+| Planned | Multi-role auth example (admin + standard user in the same test run) |
+| Planned | Request interception / API mocking patterns |
+| Out of scope | Playwright Component Testing (CT) |
+| Out of scope | Visual regression / screenshot comparison |
+| Out of scope | Performance / load testing |

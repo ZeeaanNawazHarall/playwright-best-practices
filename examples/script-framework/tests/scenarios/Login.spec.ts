@@ -33,12 +33,8 @@ const performSortAddAndVerify = async (
   await page
     .locator('[data-test="product-sort-container"]')
     .selectOption(sortOption);
-  await page.waitForLoadState("domcontentloaded");
 
   for (const item of itemsToAdd) {
-    if (item === "Sauce Labs Backpack") {
-      await page.waitForTimeout(100);
-    }
     await addItemToCart(page, item);
   }
 
@@ -69,7 +65,7 @@ test("Complex method: sort, add multiple, verify", async ({ loggedInPage }) => {
     2,
   );
 
-  await page.locator(".shopping_cart_link").click();
+  await page.locator('[data-test="shopping-cart-link"]').click();
   const cartDetails = await getCartDetails(page);
 
   expect(cartDetails.title).toBe("Your Cart");

@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import { test } from "../../fixtures/login";
 import { CartPage } from "../../pages/cart/cart.actions";
 import { ProductsPage } from "../../pages/product/product.actions";
@@ -6,18 +6,8 @@ import { CheckoutPage } from "../../pages/checkout/checkout.actions";
 
 test.describe.serial("Scenario 2: Checkout Flow", () => {
   const productName = "Sauce Labs Bike Light";
-  // let product: ProductsPage;
-  // let cart: CartPage;
-  // let checkout: CheckoutPage;
 
-  // test.beforeAll("Setup: Initialize page objects", async ({ loggedInPage }) => {
-  //   product = new ProductsPage(loggedInPage);
-  //   cart = new CartPage(loggedInPage);
-  //   checkout = new CheckoutPage(loggedInPage);
-  // });
-
-  // Helper to get fresh page objects for each test
-  const getPages = (page: any) => ({
+  const getPages = (page: Page) => ({
     product: new ProductsPage(page),
     cart: new CartPage(page),
     checkout: new CheckoutPage(page),

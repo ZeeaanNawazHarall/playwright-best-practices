@@ -1,5 +1,5 @@
 import { CartLocators } from "./cart.locators";
-import { Page } from "@playwright/test";
+import { Page, expect } from "@playwright/test";
 
 export class CartPage {
   private readonly locators: CartLocators;
@@ -42,21 +42,16 @@ export class CartPage {
   }
 
   async removeItemFromCart(productName: string) {
-    // Find the product name element directly
-    const productNameElement = this.page.locator(
-      `[data-test="inventory-item-name"]:has-text("${productName}")`,
-    );
+    const cartItem = this.locators.cartItems.filter({
+      has: this.page.locator(
+        `[data-test="inventory-item-name"]:has-text("${productName}")`,
+      ),
+    });
 
-    if ((await productNameElement.count()) === 0) {
+    if ((await cartItem.count()) === 0) {
       throw new Error(`Product not found in cart: ${productName}`);
     }
 
-    // Navigate up to the parent cart_item div
-    const cartItem = productNameElement.locator(
-      "xpath=ancestor::div[contains(@class, 'cart_item')]",
-    );
-
-    // Find the remove button within this cart item
     const removeButton = cartItem.locator('button[data-test^="remove-"]');
 
     if ((await removeButton.count()) === 0) {
@@ -64,32 +59,26 @@ export class CartPage {
     }
 
     await removeButton.click();
-    await this.page.waitForTimeout(300);
-    await cartItem.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {});
+    await expect(cartItem).not.toBeVisible();
   }
 
   async clearCart() {
     while ((await this.getCartItemCount()) > 0) {
-      const removeButton = this.page
-        .locator(
-          '.cart_item[data-test="inventory-item"] button[data-test^="remove-"]',
-        )
-        .first();
-      if ((await removeButton.count()) === 0) {
-        break;
-      }
+      const countBefore = await this.getCartItemCount();
+      const removeButton = this.locators.cartItems
+        .first()
+        .locator('button[data-test^="remove-"]');
+      if ((await removeButton.count()) === 0) break;
       await removeButton.click();
-      await this.page.waitForTimeout(300);
+      await expect(this.locators.cartItems).toHaveCount(countBefore - 1);
     }
   }
 
   async proceedToCheckout() {
     await this.locators.checkoutButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async continueShopping() {
     await this.locators.continueShoppingButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
   }
 }

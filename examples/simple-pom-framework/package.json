@@ -1,0 +1,17 @@
+{
+  "name": "framework-simple-pom",
+  "version": "1.0.0",
+  "description": "Simple Page Object Model — locators and actions in a single class. The practical middle ground between scripts and the split locator/action pattern.",
+  "scripts": {
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "report": "npx playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.19.19",
+    "dotenv": "^16.0.0"
+  }
+}

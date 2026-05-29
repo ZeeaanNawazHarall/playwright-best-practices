@@ -12,12 +12,12 @@ export class CartLocators {
   constructor(page: Page) {
     this.cartTitle = page.locator('[data-test="title"]');
     this.cartBadge = page.locator('[data-test="shopping-cart-badge"]');
-    this.cartItems = page.locator('.cart_item[data-test="inventory-item"]');
+    this.cartItems = page.locator('[data-test="inventory-item"]');
     this.cartItemNames = page.locator(
-      '.cart_item[data-test="inventory-item"] [data-test="inventory-item-name"]',
+      '[data-test="inventory-item"] [data-test="inventory-item-name"]',
     );
     this.cartItemPrices = page.locator(
-      '.cart_item[data-test="inventory-item"] [data-test="inventory-item-price"]',
+      '[data-test="inventory-item"] [data-test="inventory-item-price"]',
     );
     this.continueShoppingButton = page.locator(
       '[data-test="continue-shopping"]',

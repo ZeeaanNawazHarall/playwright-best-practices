@@ -358,6 +358,68 @@ graph LR
 
 ---
 
+## 13. Over-Abstraction: Enterprise Patterns on a Small Project
+
+```typescript
+// ❌ Split locator/action POM applied to a three-file test suite
+//    Two files to maintain per page, for a suite one developer owns.
+
+// pages/login/login.locators.ts
+export class LoginLocators {
+  readonly usernameField = this.page.getByTestId('user-name');
+  readonly passwordField = this.page.getByTestId('password');
+  readonly loginButton = this.page.getByTestId('login-button');
+  constructor(private page: Page) {}
+}
+
+// pages/login/login.actions.ts
+export class LoginPage {
+  private readonly locators: LoginLocators;
+  constructor(private page: Page) {
+    this.locators = new LoginLocators(page);
+  }
+  async login(username: string, password: string) {
+    await this.locators.usernameField.fill(username);
+    await this.locators.passwordField.fill(password);
+    await this.locators.loginButton.click();
+  }
+}
+```
+
+```typescript
+// ✅ Simple POM — locators as private properties, actions as public methods.
+//    One file per page. Refactor to the split only if you feel the split's pain.
+
+// pages/LoginPage.ts
+export class LoginPage {
+  readonly page: Page;
+  private readonly usernameInput: Locator;
+  private readonly passwordInput: Locator;
+  private readonly loginButton: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.usernameInput = page.getByTestId('username');
+    this.passwordInput = page.getByTestId('password');
+    this.loginButton = page.getByTestId('login-button');
+  }
+
+  async login(username: string, password: string) {
+    await this.usernameInput.fill(username);
+    await this.passwordInput.fill(password);
+    await this.loginButton.click();
+  }
+}
+```
+
+**Why it matters**: The split locator/action pattern solves a real problem — it separates UI changes from business logic changes so that different teams can work on them independently. On a small project, that problem does not exist. Applying the pattern before you feel the pain violates YAGNI and introduces extra files, extra imports, and extra cognitive overhead for no benefit.
+
+**The right trigger**: adopt the split when you can point to a specific recurring problem it would solve: locator changes and action changes arriving in separate PRs from different people, or a linting rule that enforces the separation. If you can't name the problem, use a single-class POM.
+
+See the [framework architecture guide](../01-framework-architecture/README.md) for the full progression from scripts → simple POM → split POM.
+
+---
+
 ## Quick Reference
 
 | Anti-pattern | Fix | Section |
@@ -374,3 +436,4 @@ graph LR
 | `testInfo.setTimeout()` in fixture | Set `timeout` in `playwright.config.ts` | [Configuration](../05-configuration/README.md) |
 | `console.log` in fixtures | `test.step()` or remove | — |
 | `test.describe.serial` by default | Use only for genuinely chained state | [Fixtures](../02-fixtures/README.md) |
+| Split locator/action POM on a small project | Single-class POM until you feel the split's specific pain | [Framework Architecture](../01-framework-architecture/README.md) |

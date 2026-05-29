@@ -7,7 +7,7 @@ export class LoginLocators {
   readonly productPage: Locator;
 
   constructor(page: Page) {
-    this.usernameField = page.locator('//*[@id="user-name"]');
+    this.usernameField = page.getByTestId("username");
     this.passwordField = page.locator('[data-test="password"]');
     this.loginButton = page.locator('[data-test="login-button"]');
     this.productPage = page.locator('[data-test="title"]');

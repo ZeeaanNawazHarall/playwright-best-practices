@@ -77,6 +77,20 @@ test('getting started should contain table of contents', async ({ page }) => {
 
 ---
 
+## The Three-Level Architecture Spectrum
+
+This repo provides three working examples that form a progression. Choose the level that matches your current maintenance pain.
+
+| Level | Example | Structure | Best for |
+|---|---|---|---|
+| Script-based | [script-framework](../../examples/script-framework/) | No page objects — locators inline in tests | Prototyping, small suites |
+| Simple POM | [simple-pom-framework](../../examples/simple-pom-framework/) | One class per page, locators + actions together | Most projects |
+| Split POM | [pom-framework](../../examples/pom-framework/) | Separate `.locators.ts` and `.actions.ts` per page | Large teams, large monorepos |
+
+**Start with Simple POM.** Only move to the split pattern when you feel the specific pain it solves: locator changes and action changes arriving separately from different teams.
+
+---
+
 ## Split Locator/Action Pattern
 
 > **Architectural decision** — not from official Playwright docs. This is a common pattern in enterprise frameworks, not a Playwright recommendation.
@@ -154,6 +168,20 @@ export class LoginPage {
 
 There is no objective winner. If the locator-only file starts growing its own logic, collapse it back into one class.
 
+### When to use the split pattern and when not to
+
+**Use it when:**
+- Multiple teams are editing the same page objects. A UI redesign changes locators; a product change changes action flows. Keeping them in separate files means separate PRs with separate reviewers.
+- You have a linting rule or architectural constraint that forbids `page.locator()` calls inside action methods. The split enforces that boundary automatically.
+- Your page objects have many locators and many actions — a single file becomes hard to navigate.
+
+**Do not use it when:**
+- Your project has fewer than ~20 page objects.
+- You are the sole developer maintaining the test suite.
+- Your team finds the extra level of indirection confusing and the overhead of two files per page is not justified.
+
+For most projects, the simple POM (locators as private class properties, actions as public methods, all in one file) is the correct default. Adopt the split only when you can point to a specific problem it would solve.
+
 ---
 
 ## Script-Based Approach
@@ -223,16 +251,19 @@ project-root/
 
 ---
 
-## Choosing Between the Two
+## Choosing the Right Level
 
 > **Note**: Playwright's official docs do not prescribe a test count or suite size at which you should switch approaches. The guidance below is based on the practical trade-offs of each style.
 
 The deciding factor is **locator maintenance cost** — how painful it is when a UI element changes.
 
-- **If a selector change affects 2–3 test files**: script-based is manageable. Searching and updating a handful of files is fast.
-- **If a selector change would ripple across many test files or many engineers' work**: POM pays off. One change in a locator file updates every test that uses that page.
-- **If you already have POM and it's growing unwieldy**: consider the split locator/action pattern — it keeps UI changes and flow changes in separate diffs.
+- **If a selector change affects 2–3 test files**: script-based is manageable.
+- **If a selector change would ripple across many test files or many engineers' work**: POM pays off. One change in a page class updates every test that uses it.
+- **If multiple teams are editing the same page classes simultaneously**: the split locator/action pattern keeps UI diffs and logic diffs separate.
 
-POM is not wrong for a small suite — the cost is just more files and structure upfront. A suite that starts small and grows is easier to manage if POM is already in place. The script approach is simpler to start and harder to refactor later; POM is more overhead to start but simpler to maintain at scale.
+Start with the simplest approach that solves your problem. Refactoring from scripts → simple POM → split POM is a natural progression — each step is motivated by a specific pain point you will feel before you need the solution.
 
-Both the [pom-framework](../../examples/pom-framework/) and [script-framework](../../examples/script-framework/) in this repo use the same test scenarios and auth fixture — comparing them side by side is the clearest way to see the trade-offs in practice.
+All three examples in this repo use the same test scenarios and auth fixture — comparing them side by side is the clearest way to see the trade-offs:
+- [script-framework](../../examples/script-framework/)
+- [simple-pom-framework](../../examples/simple-pom-framework/)
+- [pom-framework](../../examples/pom-framework/)

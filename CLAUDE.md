@@ -49,7 +49,7 @@ Set `trace: 'on-first-retry'`, `screenshot: 'only-on-failure'`, `video: 'retain-
 ### 5. Set up CI
 → [docs/07-ci-cd](docs/07-ci-cd/README.md)
 
-- GitHub Actions: use the standard Playwright workflow with `npx playwright install --with-deps` (not just `install`). Upload artifacts with `if: ${{ !cancelled() }}`.
+- GitHub Actions: use `npx playwright install --with-deps` (not just `install`). Upload artifacts with `if: ${{ !cancelled() }}`. Set `timeout-minutes` per job to prevent hung tests consuming CI minutes. Use `concurrency.cancel-in-progress: true` to cancel stale runs on fast pushes.
 - Azure Pipelines: set `CI: 'true'` explicitly — it is not automatic. Add the JUnit reporter for native test result display in Azure DevOps.
 - Do not cache browser binaries — the official docs say the cache restore time is comparable to download time.
 
@@ -80,6 +80,7 @@ These must be followed in all generated code. They are sourced from official Pla
 ### TypeScript
 - Always type `page` parameters as `Page` from `@playwright/test`, never `any`
 - Always export `expect` from your fixture file so tests import from one place
+- Initialise locators in the constructor body, not as class field initialisers that reference `this.page` — TypeScript's parameter shorthand (`constructor(private page: Page)`) is assigned after field initialisers in some compilation targets, causing ts(2729) and potential runtime errors
 
 ### Fixtures
 - Always place teardown **after** `await use()`, never before
@@ -123,10 +124,16 @@ These must be followed in all generated code. They are sourced from official Pla
 
 | Path | What it shows |
 |------|--------------|
-| [`examples/pom-framework/`](examples/pom-framework/) | Split locator/action POM, worker-cached login fixture, `storageState` TTL, Allure reporting |
+| [`examples/pom-framework/`](examples/pom-framework/) | Split locator/action POM, `{ scope: 'worker' }` login fixture, `storageState` TTL, Allure reporting |
+| [`examples/simple-pom-framework/`](examples/simple-pom-framework/) | Single-class POM — locators and actions in one file. The practical default for most projects |
 | [`examples/script-framework/`](examples/script-framework/) | Same scenarios using plain helper functions instead of page object classes |
+| [`examples/anti-pattern-lab/`](examples/anti-pattern-lab/) | All 13 documented anti-patterns as labeled, isolated code snippets — do not copy |
 
-The anti-patterns in both examples are **intentional** — they are documented in [docs/10-anti-patterns](docs/10-anti-patterns/README.md) as teaching examples. Do not replicate them in generated code; treat them as the before-state that the anti-patterns doc shows how to fix.
+All three runnable frameworks contain only recommended patterns. The anti-pattern code is isolated in `anti-pattern-lab/` so it cannot be mistaken for best practice.
+
+### CI
+
+All three runnable frameworks are tested on every push via `.github/workflows/playwright.yml` using a matrix strategy. Each job: `npm ci` → `npx playwright install --with-deps chromium` → `cp .env.example .env` → `npm test` → upload HTML report artifact.
 
 ---
 

@@ -11,7 +11,6 @@ export default defineConfig({
     ["html", { open: "never" }],
     ["json", { outputFile: "playwright-report/results.json" }],
     ["list"],
-    ["allure-playwright"],
   ],
   use: {
     baseURL: "https://www.saucedemo.com",
@@ -25,5 +24,13 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
+    // {
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] },
+    // },
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    // },
   ],
 });
